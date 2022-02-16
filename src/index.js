@@ -13,6 +13,9 @@ let bombs;
 let score = 0;
 let scoreText;
 let gameOver = false;
+let gameOverText;
+let screenCenterX;
+let screenCenterY;
 
 class MyGame extends Phaser.Scene {
     constructor() {
@@ -110,10 +113,12 @@ class MyGame extends Phaser.Scene {
         score += 10;
         scoreText.setText(`Score: ${score}`);
 
-        if (stars.countActive(true) === 0) {
-            stars.children.iterate(child => {
-                child.enableBody(true, child.x, 0, true, true);
-            });
+        if (stars.countActive(true) % 3 === 0) {
+            if (stars.countActive(true) === 0) {
+                stars.children.iterate(child => {
+                    child.enableBody(true, child.x, 0, true, true);
+                });
+            }
 
             let x = player.x < 400 ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
             let bomb = bombs.create(x, 16, 'bomb');
@@ -127,7 +132,10 @@ class MyGame extends Phaser.Scene {
         this.physics.pause();
         player.setTint(0xff0000);
         player.anims.play('turn');
-        gameOver = true;
+
+        screenCenterX = this.cameras.main.width / 2;
+        screenCenterY = this.cameras.main.height / 2;
+        gameOverText = this.add.text(screenCenterX, screenCenterY, 'Gameover !!!', { fontSize: '48px', fill: 'crimson' }).setOrigin(0.5);
     }
 }
 
