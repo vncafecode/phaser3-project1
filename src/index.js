@@ -1,9 +1,9 @@
 import Phaser from 'phaser';
-import skyImg from './assets/sky.png';
-import groundImg from './assets/platform.png';
-import starImg from './assets/star.png';
-import bombImg from './assets/bomb.png';
-import dudeImg from './assets/dude.png';
+import * as Assets from './assets/index.js';
+
+const gameViewWidth = 800;
+const gameViewHeight = 600;
+const gravity = 300;
 
 let platforms;
 let player;
@@ -13,7 +13,6 @@ let bombs;
 let score = 0;
 let scoreText;
 let gameOver = false;
-let gameOverText;
 let screenCenterX;
 let screenCenterY;
 
@@ -23,67 +22,23 @@ class MyGame extends Phaser.Scene {
     }
 
     preload() {
-        this.load.image('sky', skyImg);
-        this.load.image('ground', groundImg);
-        this.load.image('star', starImg);
-        this.load.image('bomb', bombImg);
+        this.load.image(Assets.Sky.key, Assets.Sky.url);
+        this.load.image(Assets.Ground.key, Assets.Ground.url);
+        this.load.image(Assets.Star.key, Assets.Star.url);
+        this.load.image(Assets.Bomb.key, Assets.Bomb.url);
 
-        this.load.spritesheet('dude',
-            dudeImg,
-            { frameWidth: 32, frameHeight: 48 }
-        );
+        this.load.spritesheet(Assets.Dude.key, Assets.Dude.url, { frameWidth: 32, frameHeight: 42 });
     }
 
     create() {
-        this.add.image(400, 300, 'sky');
+        this.spawnEnvironment();
+        this.spawnStar();
+        this.spawnPlayer();
+        this.spawnBomb();
 
-        platforms = this.physics.add.staticGroup();
-        platforms.create(400, 568, 'ground').setScale(2).refreshBody();
-        platforms.create(600, 400, 'ground');
-        platforms.create(50, 250, 'ground');
-        platforms.create(750, 220, 'ground');
+        this.createAnimations();
 
-        stars = this.physics.add.group({
-            key: 'star',
-            repeat: 11,
-            setXY: { x: 12, y: 0, stepX: 70 }
-        });
-        stars.children.iterate(child => {
-            child.setBounceY(Phaser.Math.FloatBetween(0.1, 0.2));
-        });
-
-        bombs = this.physics.add.group();
-
-        player = this.physics.add.sprite(100, 450, 'dude');
-        player.setBounce(0.2);
-        player.setCollideWorldBounds(true);
-        player.body.setGravityY(300);
-
-        this.anims.create({
-            key: 'left',
-            frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 3 }),
-            frameRate: 10,
-            repeat: -1
-        });
-
-        this.anims.create({
-            key: 'turn',
-            frames: [{ key: 'dude', frame: 4 }],
-            frameRate: 20
-        });
-
-        this.anims.create({
-            key: 'right',
-            frames: this.anims.generateFrameNumbers('dude', { start: 5, end: 8 }),
-            frameRate: 10,
-            repeat: -1
-        });
-
-        this.physics.add.collider(player, platforms);
-        this.physics.add.collider(stars, platforms);
-        this.physics.add.collider(bombs, platforms);
-        this.physics.add.overlap(player, stars, this.collectStar, null, this);
-        this.physics.add.overlap(player, bombs, this.hitBomb, null, this);
+        this.createPhysics();
 
         cursors = this.input.keyboard.createCursorKeys();
 
@@ -103,7 +58,7 @@ class MyGame extends Phaser.Scene {
         }
 
         if (cursors.up.isDown && player.body.touching.down) {
-            player.setVelocityY(-500);
+            player.setVelocityY(-490);
         }
     }
 
@@ -121,37 +76,99 @@ class MyGame extends Phaser.Scene {
             }
 
             let x = player.x < 400 ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
-            let bomb = bombs.create(x, 16, 'bomb');
+            let bomb = bombs.create(x, 16, Assets.Bomb.key);
             bomb.setBounce(1);
             bomb.setCollideWorldBounds(true);
             bomb.setVelocity(Phaser.Math.Between(-200, 200), 20);
         }
     }
 
-    hitBomb(player, bomb) {
+    hitBomb(player) {
         this.physics.pause();
         player.setTint(0xff0000);
         player.anims.play('turn');
 
         screenCenterX = this.cameras.main.width / 2;
         screenCenterY = this.cameras.main.height / 2;
-        gameOverText = this.add.text(screenCenterX, screenCenterY, 'Gameover !!!', { fontSize: '48px', fill: 'crimson' }).setOrigin(0.5);
+        this.add.text(screenCenterX, screenCenterY, 'Gameover !!!', { fontSize: '48px', fill: 'crimson' }).setOrigin(0.5);
+    }
+
+    spawnStar() {
+        stars = this.physics.add.group({
+            key: Assets.Star.key,
+            repeat: 11,
+            setXY: { x: 12, y: 0, stepX: 70 }
+        });
+        stars.children.iterate(child => {
+            child.setBounceY(Phaser.Math.FloatBetween(0.1, 0.2));
+        });
+    }
+
+    spawnPlayer() {
+        player = this.physics.add.sprite(100, 450, Assets.Dude.key);
+        player.setBounce(0.2);
+        player.setCollideWorldBounds(true);
+        player.body.setGravityY(300);
+    }
+
+    spawnEnvironment() {
+        this.add.image(gameViewWidth / 2, gameViewHeight / 2, Assets.Sky.key);
+
+        platforms = this.physics.add.staticGroup();
+        platforms.create(400, 568, Assets.Ground.key).setScale(2).refreshBody();
+        platforms.create(600, 400, Assets.Ground.key);
+        platforms.create(50, 250, Assets.Ground.key);
+        platforms.create(750, 220, Assets.Ground.key);
+    }
+
+    spawnBomb() {
+        bombs = this.physics.add.group();
+    }
+
+    createAnimations() {
+        this.anims.create({
+            key: 'left',
+            frames: this.anims.generateFrameNumbers(Assets.Dude.key, { start: 0, end: 3 }),
+            frameRate: 10,
+            repeat: -1
+        });
+
+        this.anims.create({
+            key: 'turn',
+            frames: [{ key: Assets.Dude.key, frame: 4 }],
+            frameRate: 20
+        });
+
+        this.anims.create({
+            key: 'right',
+            frames: this.anims.generateFrameNumbers(Assets.Dude.key, { start: 5, end: 8 }),
+            frameRate: 10,
+            repeat: -1
+        });
+    }
+
+    createPhysics() {
+        this.physics.add.collider(player, platforms);
+        this.physics.add.collider(stars, platforms);
+        this.physics.add.collider(bombs, platforms);
+        this.physics.add.overlap(player, stars, this.collectStar, null, this);
+        this.physics.add.overlap(player, bombs, this.hitBomb, null, this);
     }
 }
 
 const config = {
     type: Phaser.AUTO,
     parent: 'phaser-example',
-    width: 800,
-    height: 600,
+    width: gameViewWidth,
+    height: gameViewHeight,
     physics: {
         default: 'arcade',
         arcade: {
-            gravity: { y: 300 },
+            gravity: { y: gravity },
             debug: false
         }
     },
     scene: MyGame
 };
 
-const game = new Phaser.Game(config);
+new Phaser.Game(config);
