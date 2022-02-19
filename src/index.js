@@ -71,7 +71,7 @@ class MyGame extends Phaser.Scene {
         if (stars.countActive(true) % 3 === 0) {
             if (stars.countActive(true) === 0) {
                 stars.children.iterate(child => {
-                    child.enableBody(true, child.x, 0, true, true);
+                    child.enableBody(true, child.x, child.y - 20, true, true);
                 });
             }
 
@@ -94,11 +94,26 @@ class MyGame extends Phaser.Scene {
     }
 
     spawnStar() {
+        let heightFromGround = 50;
+
         stars = this.physics.add.group({
             key: Assets.Star.key,
-            repeat: 11,
-            setXY: { x: 12, y: 0, stepX: 70 }
+            repeat: 3,
+            setXY: { x: 12, y: 250 - 16 - heightFromGround, stepX: 70 }
         });
+
+        stars.create(420, 400 - 16 - heightFromGround, Assets.Star.key);
+        stars.create(490, 400 - 16 - heightFromGround, Assets.Star.key);
+        stars.create(560, 400 - 16 - heightFromGround, Assets.Star.key);
+        stars.create(630, 400 - 16 - heightFromGround, Assets.Star.key);
+        stars.create(700, 400 - 16 - heightFromGround, Assets.Star.key);
+        stars.create(770, 400 - 16 - heightFromGround, Assets.Star.key);
+
+        stars.create(570, 220 - 16 - heightFromGround, Assets.Star.key);
+        stars.create(640, 220 - 16 - heightFromGround, Assets.Star.key);
+        stars.create(710, 220 - 16 - heightFromGround, Assets.Star.key);
+        stars.create(780, 220 - 16 - heightFromGround, Assets.Star.key);
+
         stars.children.iterate(child => {
             child.setBounceY(Phaser.Math.FloatBetween(0.1, 0.2));
         });
