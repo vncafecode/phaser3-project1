@@ -3,7 +3,6 @@ import * as Assets from './assets/index.js';
 
 const gameViewWidth = 800;
 const gameViewHeight = 600;
-const gravity = 300;
 
 let platforms;
 let player;
@@ -28,6 +27,7 @@ class MyGame extends Phaser.Scene {
         this.load.image(Assets.Bomb.key, Assets.Bomb.url);
 
         this.load.spritesheet(Assets.Dude.key, Assets.Dude.url, { frameWidth: 32, frameHeight: 42 });
+        this.load.spritesheet(Assets.Adventurer.key, Assets.Adventurer.url, { frameWidth: 50, frameHeight: 37 });
     }
 
     create() {
@@ -47,10 +47,10 @@ class MyGame extends Phaser.Scene {
 
     update() {
         if (cursors.left.isDown) {
-            player.setVelocityX(-160);
+            player.setVelocityX(-150);
             player.anims.play('left', true);
         } else if (cursors.right.isDown) {
-            player.setVelocityX(160);
+            player.setVelocityX(150);
             player.anims.play('right', true);
         } else {
             player.setVelocityX(0);
@@ -58,7 +58,7 @@ class MyGame extends Phaser.Scene {
         }
 
         if (cursors.up.isDown && player.body.touching.down) {
-            player.setVelocityY(-490);
+            player.setVelocityY(-500);
         }
     }
 
@@ -120,10 +120,11 @@ class MyGame extends Phaser.Scene {
     }
 
     spawnPlayer() {
-        player = this.physics.add.sprite(100, 450, Assets.Dude.key);
+        // player = this.physics.add.sprite(100, 450, Assets.Dude.key);
+        player = this.physics.add.sprite(100, 450, Assets.Adventurer.key);
+        player.setScale(1.5).refreshBody();
         player.setBounce(0.2);
         player.setCollideWorldBounds(true);
-        player.body.setGravityY(300);
     }
 
     spawnEnvironment() {
@@ -131,9 +132,12 @@ class MyGame extends Phaser.Scene {
 
         platforms = this.physics.add.staticGroup();
         platforms.create(400, 568, Assets.Ground.key).setScale(2).refreshBody();
-        platforms.create(600, 400, Assets.Ground.key);
-        platforms.create(50, 250, Assets.Ground.key);
-        platforms.create(750, 220, Assets.Ground.key);
+        platforms.create(600, 450, Assets.Ground.key).setScale(0.5, 1).refreshBody();
+        platforms.create(70, 450, Assets.Ground.key);
+        platforms.create(400, 340, Assets.Ground.key).setScale(0.8, 1).refreshBody();
+        platforms.create(750, 230, Assets.Ground.key);
+        platforms.create(200, 230, Assets.Ground.key).setScale(0.5, 1).refreshBody();
+        platforms.create(400, 120, Assets.Ground.key);
     }
 
     spawnBomb() {
@@ -143,20 +147,21 @@ class MyGame extends Phaser.Scene {
     createAnimations() {
         this.anims.create({
             key: 'left',
-            frames: this.anims.generateFrameNumbers(Assets.Dude.key, { start: 0, end: 3 }),
+            frames: this.anims.generateFrameNumbers(Assets.Adventurer.key, { start: 0, end: 3 }),
             frameRate: 10,
             repeat: -1
         });
 
         this.anims.create({
             key: 'turn',
-            frames: [{ key: Assets.Dude.key, frame: 4 }],
-            frameRate: 20
+            frames: this.anims.generateFrameNumbers(Assets.Adventurer.key, { start: 0, end: 4 }),
+            frameRate: 10,
+            repeat: -1
         });
 
         this.anims.create({
             key: 'right',
-            frames: this.anims.generateFrameNumbers(Assets.Dude.key, { start: 5, end: 8 }),
+            frames: this.anims.generateFrameNumbers(Assets.Adventurer.key, { start: 5, end: 8 }),
             frameRate: 10,
             repeat: -1
         });
@@ -179,7 +184,7 @@ const config = {
     physics: {
         default: 'arcade',
         arcade: {
-            gravity: { y: gravity },
+            gravity: { y: 1000 },
             debug: false
         }
     },

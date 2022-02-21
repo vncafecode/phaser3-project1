@@ -3,6 +3,7 @@ import groundImg from './platform.png';
 import starImg from './star.png';
 import bombImg from './bomb.png';
 import dudeImg from './dude.png';
+import adventurerImg from './adventurer.png';
 
 const Sky = {
     key: 'sky',
@@ -29,10 +30,16 @@ const Dude = {
     url: dudeImg
 }
 
+const Adventurer = {
+    key: 'adventurer',
+    url: adventurerImg
+}
+
 export {
     Sky,
     Ground,
     Star,
     Bomb,
-    Dude
+    Dude,
+    Adventurer
 };
